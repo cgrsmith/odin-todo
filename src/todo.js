@@ -1,4 +1,5 @@
 export const toDos = (() => {
+    const todos = [];
     let nextId = 0;
 
     const createTodo = (title, description, date, priority) => {
@@ -7,7 +8,7 @@ export const toDos = (() => {
                 error : "invalid input"
             };
         }
-        return {
+        const newTodo = {
             title,
             description,
             date,
@@ -15,27 +16,37 @@ export const toDos = (() => {
             checked : false,
             id : nextId++
         }
+        todos.push(newTodo);
+        return nextId - 1;
     }
 
-    const editTodo = (title, description, date, priority, checked, id) => {
+    const editTodo = (todoId, title, description, date, priority, checked) => {
         if (!validateInputs(title, description, date, priority, checked)) { //input checks
             return {
                 error : "invalid input"
             };
         }
-        return {
-            title,
-            description,
-            date,
-            priority,
-            checked,
-            id
+        const thisTodo = getTodoFromId(todoId);
+        thisTodo.title = title;
+        thisTodo.description = description;
+        thisTodo.date = date;
+        thisTodo.priority = priority;
+        thisTodo.checked = checked;
+    }
+
+    const getTodoFromId = (todoId) => {
+        return todos.find((todo) => todo.id === todoId);
+    }
+
+    const deleteTodo = (todoId) => {
+        const index = todos.findIndex((todo) => todo.id === todoId);
+        if (index > -1) {
+            todos.splice(index,1);
         }
     }
 
 
-
-    return {createTodo, editTodo}
+    return {todos, createTodo, editTodo, getTodoFromId, deleteTodo}
 })();
 
 export const projects = (() => {
@@ -66,7 +77,7 @@ export const projects = (() => {
                 error : "invalid input"
             };
         }
-        const thisProject = projects.find((project) => project.id === projId);
+        const thisProject = getProjectFromId(projId);
         thisProject.title = title;
         thisProject.description = description;
         thisProject.date = date;
@@ -74,17 +85,22 @@ export const projects = (() => {
         thisProject.checked = checked;
     }
 
-    const addTodoToProject = (id, newTodo) => {
-        projects.find((project) => project.id === id).todos.push(newTodo);
+    const addTodoToProject = (projId, todoId) => {
+        getProjectFromId(projId).todos.push(todoId);
     }
 
-    const replaceTodo = (projId, newTodo) => {
-        const thisProject = projects.find((project) => project.id === projId);
-        const todoIndex = thisProject.todos.findIndex((todo) => todo.id === newTodo.id);
-        thisProject.todos[todoIndex] = newTodo;
-    } 
+    const getProjectFromId = (projId) => {
+        return projects.find((project) => project.id === projId)
+    }
 
-    return {projects, createProject, editProject, addTodoToProject, replaceTodo}
+    const removeTodoFromProject = (projId, todoId) => {
+        const index = getProjectFromId(projId).todos.findIndex((todo) => todo === todoId);
+        if (index > -1) {
+            getProjectFromId(projId).todos.splice(index,1);
+        }
+    }
+
+    return {projects, createProject, editProject, addTodoToProject, removeTodoFromProject}
 })();
 
 const validateInputs = (title, description, date, priority, checked = false) => {
