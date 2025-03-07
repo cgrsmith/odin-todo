@@ -1,7 +1,12 @@
 * {
-    color: red;
+
 }
 
+
+.display-header {
+    display: flex;
+    justify-content: space-between;
+}
 
 .checked {
     text-decoration: line-through;
