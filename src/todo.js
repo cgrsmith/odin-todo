@@ -1,6 +1,18 @@
 export const toDos = (() => {
-    const todos = [];
-    let nextId = 0;
+
+    let nextId;
+
+    const loadTodos = () => {
+        if (!localStorage.getItem("todo-app-todos")) {
+            nextId = 0;
+            return [];
+        } else {
+            nextId = Number(JSON.parse(localStorage.getItem("todo-app-todos-id")));
+            return JSON.parse(localStorage.getItem("todo-app-todos"));
+        }
+    }
+
+    const todos = loadTodos();
 
     const createTodo = (title, description, date, priority) => {
         if (!validateInputs(title, description, date, priority)) { //input checks
@@ -17,6 +29,7 @@ export const toDos = (() => {
             id : nextId++
         }
         todos.push(newTodo);
+        saveTodos();
         return nextId - 1;
     }
 
@@ -32,6 +45,7 @@ export const toDos = (() => {
         thisTodo.date = date;
         thisTodo.priority = priority;
         thisTodo.checked = checked;
+        saveTodos();
     }
 
     const getTodoFromId = (todoId) => {
@@ -43,8 +57,14 @@ export const toDos = (() => {
         if (index > -1) {
             todos.splice(index,1);
         }
+        saveTodos();
     }
 
+
+    const saveTodos = () => {
+        localStorage.setItem("todo-app-todos", JSON.stringify(todos));
+        localStorage.setItem("todo-app-todos-id", JSON.stringify(nextId));
+    }
 
     return {todos, createTodo, editTodo, getTodoFromId, deleteTodo}
 })();

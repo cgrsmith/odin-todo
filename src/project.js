@@ -1,7 +1,19 @@
 
 export const projects = (() => {
-    const projects = [];
-    let nextId = 0;
+    
+    let nextId;    
+    
+    const loadProjects = () => {
+        if (!localStorage.getItem("todo-app-projects")) {
+            nextId = 0;
+            return [];
+          } else {
+            nextId = Number(JSON.parse(localStorage.getItem("todo-app-projects-id")));
+            return JSON.parse(localStorage.getItem("todo-app-projects"));
+          }
+    }
+
+    const projects = loadProjects();
 
     const createProject = (title, description, date, priority) => {
         if (!validateInputs(title, description, date, priority)) { //input checks
@@ -19,6 +31,7 @@ export const projects = (() => {
             id : nextId++
         }
         projects.push(newProj);
+        saveProjects();
     }
 
     const editProject = (projId, title, description, date, priority, checked) => {
@@ -33,10 +46,13 @@ export const projects = (() => {
         thisProject.date = date;
         thisProject.priority = priority;
         thisProject.checked = checked;
+        saveProjects();
     }
 
     const addTodoToProject = (projId, todoId) => {
         getProjectFromId(projId).todos.push(todoId);
+        saveProjects();
+
     }
 
     const getProjectFromId = (projId) => {
@@ -48,6 +64,7 @@ export const projects = (() => {
         if (index > -1) {
             projects.splice(index,1);
         }
+        saveProjects();
     }
 
     const removeTodoFromProject = (projId, todoId) => {
@@ -55,6 +72,12 @@ export const projects = (() => {
         if (index > -1) {
             getProjectFromId(projId).todos.splice(index,1);
         }
+        saveProjects();
+    }
+
+    const saveProjects = () => {
+        localStorage.setItem("todo-app-projects", JSON.stringify(projects));
+        localStorage.setItem("todo-app-projects-id", JSON.stringify(nextId));
     }
 
     return {projects, createProject, editProject, addTodoToProject, removeTodoFromProject, deleteProject, getProjectFromId}
